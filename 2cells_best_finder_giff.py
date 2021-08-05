@@ -88,9 +88,8 @@ for i in range(len(BlueCell_megaarray[0,0,:])):                                 
 
 filenames = []
 gs = gridspec.GridSpec(1, 1)
-for i in range (0,1):
+for i in range (len(BlueCell_megaarray[0,0,:])):
     for j in range (len(RedCell_megaarray[0,0,:])):             #Now we plot all the results for the N best cells combinations
-        i=8
         nn = np.intersect1d(np.argwhere(Summs_indexes[:,0] == i), np.argwhere(Summs_indexes[:,1] == j))
         xred = RedCell_megaarray[:,0,j]
         yred = RedCell_megaarray[:,5,j]

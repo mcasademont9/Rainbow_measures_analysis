@@ -11,17 +11,18 @@ import matplotlib.gridspec as gridspec
 #First of all we load all the data. For that, we ask to the user where are the measure files of the blue cell and the red cell, 
 #read each rainbow measure for each measured cell and save it on an array (BlueCell_megaarray, RecCell_megaarray) and its corresponding _names in a list.
 
- 
-BlueCell_File_Directory = os.path.join(filedialog.askdirectory(title='Select the directory of the BLUE CELL', initialdir=os.getcwd(), mustexist=True),'TXT files')   # Ask for the directory where all the EQE and JV curve files are                 #Just adding the TXT file at the end of the path because there is an extra folder to open
-BlueCell_Available_folders = os.listdir(BlueCell_File_Directory)
+
+BlueCell_Files_Directory =  filedialog.askdirectory(title='Select the directory of the BLUE CELL', initialdir=os.getcwd(), mustexist=True)
+BlueCell_Files_Directory_rainbow= os.path.join(BlueCell_Files_Directory,'TXT files')   #Define the directory where all the rainbow sweeps are saved
+BlueCell_Files_Directory_EQE = os.path.join(BlueCell_Files_Directory, 'EQE')           #Define the directory where all the EQE data is saved
+BlueCell_Available_folders = os.listdir(BlueCell_Files_Directory_rainbow)
 BlueCells_names = []                                                                    #initialize the list of names   
 for folder in BlueCell_Available_folders:               
     if not folder.endswith(".txt"):                                                     #find for all the folders inside the specified path whic corresponds to the measured cells without reading the calibration files (which are .txt files)
-        
-        cell_pathlist = os.listdir(os.path.join(BlueCell_File_Directory,folder))        #enter to each foler corresponding to each measured cell
+        cell_pathlist = os.listdir(os.path.join(BlueCell_Files_Directory_rainbow,folder))        #enter to each foler corresponding to each measured cell
         for file in cell_pathlist:                                                      
             if file.endswith(".txt"):                                                   #And store the data in the corresponding megaarray        
-                load_txt_filepath = os.path.join(BlueCell_File_Directory,folder,file)
+                load_txt_filepath = os.path.join(BlueCell_Files_Directory_rainbow,folder,file)
                 actual_cell_data = np.loadtxt(load_txt_filepath, skiprows=1)
                 BlueCells_names.append(folder)
                 try: 
@@ -30,18 +31,33 @@ for folder in BlueCell_Available_folders:
                     BlueCell_megaarray = actual_cell_data
                 else: 
                     BlueCell_megaarray = np.dstack((BlueCell_megaarray, actual_cell_data))
-                
-#This part is doing the same as before, but for the red cell.               
-RedCell_File_Directory = os.path.join(filedialog.askdirectory(title='Select the directory of the RED CELL', initialdir=os.getcwd(), mustexist=True), 'TXT files')  # Ask for the directory where all the EQE and JV curve files are
-RedCell_Available_folders = os.listdir(RedCell_File_Directory)
+
+for file in BlueCell_Files_Directory_EQE:
+    for ii in range(len(BlueCells_names)):
+    	if file.endswith(BlueCells_names[ii]+'.txt'):
+            load_txt_filepath = os.path.join(BlueCell_Files_Directory_EQE,file)
+            actual_cell_data = np.loadtxt(load_txt_filepath, skiprows=1)
+            try: 
+                BlueCell_EQE
+            except NameError: 
+                BlueCell_EQE = actual_cell_data
+            else: 
+                BlueCell_EQE = np.dstack((BlueCell_EQE, actual_cell_data))
+
+
+#This part is doing the same as before, but for the red cell. 
+RedCell_Files_Directory = filedialog.askdirectory(title='Select the directory of the RED CELL', initialdir=os.getcwd(), mustexist=True)
+RedCell_Files_Directory_rainbow = os.path.join(RedCell_Files_Directory, 'TXT files')  # Ask for the directory where all the EQE and JV curve files are
+RedCell_Files_Directory_EQE = os.path.join(RedCell_Files_Directory, 'EQE')
+RedCell_Available_folders = os.listdir(RedCell_Files_Directory_rainbow)
 RedCells_names = []
 for folder in RedCell_Available_folders:
     if not folder.endswith(".txt"):
         
-        cell_pathlist = os.listdir(os.path.join(RedCell_File_Directory,folder))
+        cell_pathlist = os.listdir(os.path.join(RedCell_Files_Directory_rainbow,folder))
         for file in cell_pathlist:
             if file.endswith(".txt"):
-                load_txt_filepath = os.path.join(RedCell_File_Directory,folder,file)
+                load_txt_filepath = os.path.join(RedCell_Files_Directory_rainbow,folder,file)
                 actual_cell_data = np.loadtxt(load_txt_filepath, skiprows=1)
                 RedCells_names.append(folder)
                 try: 
@@ -50,6 +66,18 @@ for folder in RedCell_Available_folders:
                     RedCell_megaarray = actual_cell_data
                 else: 
                     RedCell_megaarray = np.dstack((RedCell_megaarray, actual_cell_data))
+
+for file in RedCell_Files_Directory_EQE:
+    for ii in range(len(RedCells_names)):
+    	if file.endswith(RedCells_names[ii]+'.txt'):
+            load_txt_filepath = os.path.join(RedCell_Files_Directory_EQE,file)
+            actual_cell_data = np.loadtxt(load_txt_filepath, skiprows=1)
+            try: 
+                RedCell_EQE
+            except NameError: 
+                RedCell_EQE = actual_cell_data
+            else: 
+                RedCell_EQE = np.dstack((RedCell_EQE, actual_cell_data))
 
 #Here we make the arrays corresponding to all the possible sums between cells. 
 Sums_names = []                                                                     #first start the list of cell names for each sum
@@ -126,4 +154,3 @@ for k in range (N):             #Now we plot all the results for the N best cell
     ax1.set(xlabel='Dividing Wavelength /nm', ylabel='Efficiency /%')
     filename = ('Best combination_'+str(k)+'.png')
     plt.savefig(filename)
-
