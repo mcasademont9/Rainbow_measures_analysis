@@ -7,8 +7,7 @@ from tkinter import filedialog
 import os
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-
-####################################################
+################################################
 #First of all we load all the data. For that, we ask to the user where are the measure files of the blue cell and the red cell, 
 #read each rainbow measure for each measured cell and save it on an array (BlueCell_megaarray, RecCell_megaarray) and its corresponding _names in a list.
 
