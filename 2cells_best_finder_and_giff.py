@@ -172,7 +172,7 @@ for n in range(
         (np.amax(Summ_megaarray[:, 5, n]) / best_cell_PCE) - 1
     )  # Afterwards, calculate the IOBC as the division of the maximum of the summ divided by the best cell PCE and rest 1
     IoBC.append(IoBC_actual)  # Finally put the actual IOBC in the IOBC list
-    maxPCE.append(np.amax(Summ_megaarray[:, 5, n]))
+    maxPCE.append(best_cell_PCE)
 
 
 # We add a IoBC treshold, since tanking the best and the worts cell will give something with a really high maxPCE but a IoBC near to 0
@@ -457,4 +457,3 @@ for pth in range(len(RedBlue_paths)):
         )
         + ".png"
     )
-
