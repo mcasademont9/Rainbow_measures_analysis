@@ -13,7 +13,8 @@ from scipy.interpolate import make_interp_spline
 Cell_Files_Directory = filedialog.askdirectory(title='Select the directory of the RED CELL', initialdir=os.getcwd(), mustexist=True)
 Cell_Files_Directory_rainbow = os.path.join(Cell_Files_Directory, 'TXT files')  # Ask for the directory where all the EQE and JV curve files are
 Cell_Files_Directory_EQE = os.path.join(Cell_Files_Directory, 'EQE')
-Cell_Available_folders = os.listdir(Cell_Files_Directory_rainbow)
+Cell_Available_folders_unsorted = os.listdir(Cell_Files_Directory_rainbow)
+Cell_Available_folders = sorted(Cell_Available_folders_unsorted)
 Cells_names = []
 for folder in Cell_Available_folders:
     if not folder.endswith(".txt"):
@@ -55,7 +56,7 @@ ax2 = fig.add_subplot(gs[0,1])
 ax3 = fig.add_subplot(gs[1,0])
 ax4 = fig.add_subplot(gs[1,1])
 ax5 = fig.add_subplot(gs[2,:])
-fig.suptitle('Rainbow measurements for'+os.path.split(Cell_Files_Directory)[1], fontsize=16)
+fig.suptitle('Rainbow measurements for '+os.path.split(Cell_Files_Directory)[1], fontsize=16)
 colors_ = plab.cm.jet(np.linspace(0,1,len(Cell_megaarray[0,0,:])))
 for i in range(len(Cell_megaarray[0,0,:])):
     ax1.plot(Cell_megaarray[:,0,i], Cell_megaarray[:,5,i], label = Cells_names[i], color=colors_[i])
@@ -65,7 +66,7 @@ for i in range(len(Cell_megaarray[0,0,:])):
     x=Cell_EQE[:,0,i]
     y=Cell_EQE[:,1,i]
     X_Y_Spline = make_interp_spline(x, y)
-    X_ = np.linspace(x.min(), 900, 500)
+    X_ = np.linspace(x.min(), 1100, 500)
     Y_ = X_Y_Spline(X_)
     ax5.plot(X_,Y_, label = Cells_names[i], color=colors_[i])
     #ax1.set_title('Efficiency vs Dividing Wavelength.')
@@ -97,3 +98,4 @@ if not os.path.exists(Save_Directory):
    os.mkdir(Save_Directory)
 
 plt.savefig(os.path.join(os.path.split(Cell_Files_Directory)[0],'Rainbow and EQE measurements plots', os.path.split(Cell_Files_Directory)[1])+'.png')
+print('Plot done!. It has been saved at '+str(os.path.join(os.path.split(Cell_Files_Directory)[0],'Rainbow and EQE measurements plots', os.path.split(Cell_Files_Directory)[1])+'.png'))
