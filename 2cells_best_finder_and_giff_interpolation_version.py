@@ -19,8 +19,9 @@ from matplotlib import colors
 ################################################
 
 BEST_N_CELLS_TF =  True
-GIF_TF = True
-FULL_RAINBOW_EQE_PLOTS_TF = True
+N = 500      #The number of best cells
+GIF_TF = False
+FULL_RAINBOW_EQE_PLOTS_TF = False
 
 ################################################
 # First of all we load all the data. For that, we ask to the user where are the measure files of the blue cell and the red cell,
@@ -72,6 +73,7 @@ for file in BlueCell_Files_Directory_EQE:
         if file.endswith(BlueCells_names[ii] + ".txt"):
             load_txt_filepath = os.path.join(BlueCell_Files_Directory_EQE, file)
             actual_cell_data = np.loadtxt(load_txt_filepath, skiprows=1)
+            
             try:
                 BlueCell_EQE
             except NameError:
@@ -127,6 +129,38 @@ for file in RedCell_Files_Directory_EQE:
 print('Blue cell and Red cell data loaded successfully')
 
 # Here we make the arrays corresponding to all the possible sums between cells.
+# Fist of all we will re-create the megaarrays so that we have a better cutwl resolution making and interpolation between them. 
+BlueCell_megaarray_raw = BlueCell_megaarray     #We first save the imported data stored in the megaarays as a new variable called megaarray_raw
+RedCell_megaarray_raw = RedCell_megaarray
+BlueCell_megaarray = None                        #And kill the old megaarrays. This is because I made this part of the code afterwards and I dont want to change evey name of all the megaarrays. 
+RedCell_megaarray = None
+megaarray_minwl = max((np.min(RedCell_megaarray_raw[:,0,:]), np.min(BlueCell_megaarray_raw[:,0,:])))
+megaarray_maxwl = min((np.max(RedCell_megaarray_raw[:,0,:]), np.max(BlueCell_megaarray_raw[:,0,:])))
+print(megaarray_maxwl, megaarray_minwl)
+megaarray_reswl = 1
+megaarray_wls = np.arange(megaarray_minwl, megaarray_maxwl, megaarray_reswl)
+BlueCell_megaarray = np.zeros((len(megaarray_wls),len(BlueCell_megaarray_raw[0,:,0]), len(BlueCell_megaarray_raw[0,0,:])))
+RedCell_megaarray = np.zeros((len(megaarray_wls),len(RedCell_megaarray_raw[0,:,0]), len(RedCell_megaarray_raw[0,0,:])))
+
+
+for j in range(len(BlueCell_megaarray[0,0,:])):                   #We loop for all the cells (the deep dimension)
+    for i in range(len(BlueCell_megaarray_raw[0,:])):             #Now we loop for all the columns of the megaarrays_raw that contains information (ie, not the first that is cut wl)
+        if i == 0:
+            BlueCell_megaarray[:,0,j] = megaarray_wls            
+                
+        blue_interp = interpolate.interp1d(BlueCell_megaarray_raw[:,0,j], BlueCell_megaarray_raw[:,i,j], kind='linear')       #We make a linear interpolation of each column
+        BlueCell_megaarray[:,i,j] = blue_interp(BlueCell_megaarray[:,0,j])                                                    #And save it to the corresponding column with the wl of the sero column (the wl resolution that we want)
+
+for j in range(len(RedCell_megaarray[0,0,:])):                    #We loop for all the cells (the deep dimension)
+    for i in range(len(BlueCell_megaarray_raw[0,:])):             #Now we loop for all the columns of the megaarrays_raw that contains information (ie, not the first that is cut wl)
+        if i == 0:
+            RedCell_megaarray[:,0,j] = megaarray_wls
+            
+        red_interp = interpolate.interp1d(RedCell_megaarray_raw[:,0,j], RedCell_megaarray_raw[:,i,j], kind='linear')          #We make a linear interpolation of each column
+        RedCell_megaarray[:,i,j] = red_interp(RedCell_megaarray[:,0,j])                                                       #And save it to the corresponding column with the wl of the sero column (the wl resolution that we want)
+
+
+
 Sums_names = []  # first start the list of cell names for each sum
 for i in range(len(BlueCell_megaarray[0, 0, :])):  # Loop for the blue cell
     for j in range(len(RedCell_megaarray[0, 0, :])):  # Loop for the red cell
@@ -139,7 +173,8 @@ for i in range(len(BlueCell_megaarray[0, 0, :])):  # Loop for the blue cell
         ):  # This small part is added just in case that red and blue sweep does not have the same cutting wavelenght order (it seareches for the corresponding cutting wavelenght of the red array to the blue array and makes the summ)
             b_wl_ind = np.where(
                 BlueCell_megaarray[:, 0, i] == RedCell_megaarray[r_wl_ind, 0, j]
-            )  # Find the index of the blue cell array that has the same dividing wavelength as the red cell array
+            )[0]  # Find the index of the blue cell array that has the same dividing wavelength as the red cell array
+            #print(i,j)
             Summ_actual_array[r_wl_ind, :] = (
                 BlueCell_megaarray[b_wl_ind, :, i] + RedCell_megaarray[r_wl_ind, :, j]
             )  # For that wavelength, sum of all the parameters
@@ -195,7 +230,7 @@ for n in range(
 if BEST_N_CELLS_TF:
         
     # Now find the N combinations with higher IOBC, and appart the N with higher total PCE
-    N = 20
+    #N = 20
     IoBC_max = np.argsort(
         np.array(IoBC)
     )  # [-N:]            #Find the corresponding indexes in the sum matrixes corresponding to N maximum IoBC
