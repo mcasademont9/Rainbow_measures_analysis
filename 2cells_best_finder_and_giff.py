@@ -19,8 +19,8 @@ from matplotlib import colors
 ################################################
 
 BEST_N_CELLS_TF =  True
-GIF_TF = True
-FULL_RAINBOW_EQE_PLOTS_TF = True
+GIF_TF = False
+FULL_RAINBOW_EQE_PLOTS_TF = False
 
 ################################################
 # First of all we load all the data. For that, we ask to the user where are the measure files of the blue cell and the red cell,
