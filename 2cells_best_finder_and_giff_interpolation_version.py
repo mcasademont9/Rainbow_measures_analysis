@@ -26,12 +26,12 @@ N_cells = 30  # The number of best cells to return for the BEST_N_CELLS option
 
 GIF_TF = False  # If true, it returns a folder with all the GIFs of each Blue/Red cell swaping with the others Red/Blue cells.
 RED_CELL_CONSTANT = False  # If True, it makes the giff with the Red cell constant
-BLUE_CELL_CONSTANT = True  # If True, it makes the giff with the Blue cell constant
+BLUE_CELL_CONSTANT = False  # If True, it makes the giff with the Blue cell constant
 # NOTE: Both Blue and Red cell constant options can be true. In that case, it will create both folders.
 # Consider also that this GIFF option is highly time consuming, so just use it in case you really need it (for example, it is cool to see the thickness dependence of IoBC)
 
 FULL_RAINBOW_EQE_PLOTS_TF = True  # If True it returns a graphic for Red and Blue cells wherein the rainbow measurements of all the cells
-AVAILABLE_EQE_DATA = True  # The False option creates the FULL_RAINBOW_EQE_PLOTS_TF plot withouth the EQE. Use it in case you don't have the EQE data or if you don't want to show it.
+AVAILABLE_EQE_DATA = False  # The False option creates the FULL_RAINBOW_EQE_PLOTS_TF plot withouth the EQE. Use it in case you don't have the EQE data or if you don't want to show it.
 
 ################################################
 ########### DATA STRUCURE AND OUTPUT ###########
