@@ -22,6 +22,7 @@ BEST_N_CELLS_TF = (
     True  # If True, it returns the PCE graphs of the N bests binary rainbow cells
 )
 N_cells = 30  # The number of best cells to return for the BEST_N_CELLS option
+TXT_FOR_BEST_N_CELLS = True     #If True, it will create an extra folder inside the BES_N_CELLS folder with all the data as a txt file for each combination
 
 
 GIF_TF = False  # If true, it returns a folder with all the GIFs of each Blue/Red cell swaping with the others Red/Blue cells.
@@ -308,11 +309,16 @@ if BEST_N_CELLS_TF:
     # IoBC_max_and_maxPCE_max = np.intersect1d(IoBC_max, maxPCE_max) #Find the indexes that are to both cases
     # IoBC_max_and_maxPCE_max = np.array([IoBC,maxPCE], dtype=[('IoBC_max', 'f4'),('maxPCE','f4')])
     # IoBC_max_and_maxPCE_max = np.argsort(IoBC_max_and_maxPCE_max, order=('maxPCE', 'IoBC_max'))
+    
+    if N_cells >= len(IoBC_max):   #This statement is just to notice that the N_cells number is lower than the combination of cells possible. In that case we redefine N_cells as the maximum number of combinations
+        N_cells = len(IoBC_max)
 
     gs = gridspec.GridSpec(1, 1)
+  
     for k in range(
         N_cells
     ):  # Now we plot all the results for the N best cells combinations
+
         n = IoBC_max[-k - 1]
         [i, j] = Summs_indexes[n, :]
         xred = RedCell_megaarray[:, 0, j]
@@ -350,7 +356,7 @@ if BEST_N_CELLS_TF:
         )
         ax1.legend(loc="lower center")
         ax1.set(xlabel="Dividing Wavelength /nm", ylabel="PCE /%")
-        filename = "/Best combination_" + str(k + 1) + ".png"
+        filename_png = "/Best combination_" + str(k + 1) + ".png"
         Save_Directory = os.path.join(
             os.path.split(BlueCell_Files_Directory)[0],
             "Rainbow analysis (2 cells)",
@@ -359,7 +365,24 @@ if BEST_N_CELLS_TF:
         )
         if not os.path.exists(Save_Directory):
             os.makedirs(Save_Directory)
-        plt.savefig(str(Save_Directory + filename))
+        plt.savefig(str(Save_Directory + filename_png))
+    
+        if TXT_FOR_BEST_N_CELLS: #In case we want to save all tha important data in a txt to plot again in origin (for example)
+            txt_file_array = np.hstack([BlueCell_megaarray[:, :, i], RedCell_megaarray[:, :, j], Summ_megaarray[:, [0,1,2,5], n]]) #Construct the correspondig data array by horizontally stacking the Blue and red cell megaarray and the summ of Jsc and PCE
+            
+            filename_txt = "/Best combination_" + str(k + 1) + ".txt"   #Define the filename of the .txt file
+            Save_Directory = os.path.join( #Define the save directory
+            os.path.split(BlueCell_Files_Directory)[0],
+            "Rainbow analysis (2 cells)",
+            BlueCell_device_name + " + " + RedCell_device_name,
+            str(N_cells) + " best cells combinations", 'TXT files'
+            )
+
+            if not os.path.exists(Save_Directory): #Create the directory in case it does not exist
+                os.makedirs(Save_Directory)
+            
+            np.savetxt(str(Save_Directory + filename_txt), txt_file_array, delimiter = '    ', header = 'BlueCell[Dividing Wavelength (nm); Light Power Density (W/m^2); Jsc (A/m^2); Voc (V); FF (%); Efficiency (%); Rs (ohm · m^2); Rsh (ohm · m^2)]; RedCell[Dividing Wavelength (nm); Light Power Density (W/m^2); Jsc (A/m^2); Voc (V); FF (%); Efficiency (%); Rs (ohm · m^2); Rsh (ohm · m^2)]; SUMM [Dividing Wavelength (nm); Light Power Density (W/m^2); Jsc (A/m^2); Efficiency (%)' ) #And save the corresponding txt
+
 
 
 if GIF_TF:
